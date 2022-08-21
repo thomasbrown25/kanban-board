@@ -2,10 +2,8 @@ import { TASK_ACTION_TYPES } from './task.types';
 
 const initialState = {
     tasks: [],
-    backlog: [],
-    inProgress: [],
-    testing: [],
-    done: [],
+    columns: [],
+    columnOrder: [],
     error: null
 };
 
@@ -17,15 +15,28 @@ export const taskReducer = (state = initialState, action = {}) => {
             return {
                 ...state,
                 tasks: payload.tasks,
-                backlog: payload.backlog,
-                inProgress: payload.inProgress,
-                testing: payload.testing,
-                done: payload.done
+                columns: payload.columns,
+                columnOrder: payload.columnOrder
             };
+
         case TASK_ACTION_TYPES.GET_TASK_FAILED:
             return {
                 ...state,
-                isCartOpen: payload
+                error: payload
+            };
+
+        case TASK_ACTION_TYPES.MOVE_TASK:
+            return {
+                ...state,
+                tasks: payload.tasks,
+                columns: payload.columns,
+                columnOrder: payload.columnOrder
+            };
+
+        case TASK_ACTION_TYPES.MOVE_TASK_FAILED:
+            return {
+                ...state,
+                error: payload
             };
         default:
             return state;

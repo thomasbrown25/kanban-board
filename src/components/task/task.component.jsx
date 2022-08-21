@@ -1,29 +1,20 @@
-import './task.styles.css';
-import { useDrag } from 'react-dnd';
+import { Draggable } from 'react-beautiful-dnd';
 
-const Task = ({ content, boardCardId, addTaskToBoard, boardToDropTask }) => {
-    const [{ isDragging }, dragRef] = useDrag(() => ({
-        type: 'task',
-        item: { boardCardId },
-        end: (item, monitor) => {
-            const dropResult = monitor.getDropResult();
-            //console.log(item, dropResult);
+import { TaskContainer } from './task.styles';
 
-            //addTaskToBoard(item);
-        },
-        collect: (monitor) => ({
-            isDragging: !!monitor.isDragging()
-        })
-    }));
-
+const Task = ({ id, task, index }) => {
     return (
-        <div
-            ref={dragRef}
-            draggable
-            className={`task-container board-id-${boardCardId}`}
-        >
-            {content}
-        </div>
+        <Draggable draggableId={id} index={index} type='TASK'>
+            {(provided) => (
+                <TaskContainer
+                    ref={provided.innerRef}
+                    {...provided.draggableProps}
+                    {...provided.dragHandleProps}
+                >
+                    {task.content}
+                </TaskContainer>
+            )}
+        </Draggable>
     );
 };
 

@@ -1,158 +1,110 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { Container, Row } from 'react-bootstrap';
-import { useDrop } from 'react-dnd';
+import { DragDropContext } from 'react-beautiful-dnd';
 
-import Task from '../task/task.component';
+import Board from '../board/board.component';
 
-import { getTasks, moveTask } from '../../store/task/task.action';
+import { getTasks, saveTask } from '../../store/task/task.action';
 
-import './dashboard.styles.css';
-
-// I'm using this to identify which board-card the task belongs to
-const boardCardIds = {
-    backlog: 1,
-    inProgress: 2,
-    testing: 3,
-    done: 4
-};
+import { DashboardContainer } from './dashboard.styles';
 
 const Dashboard = ({
     getTasks,
-    moveTask,
-    task: { backlog, inProgress, testing, done }
+    saveTask,
+    task: { tasks, columns, columnOrder }
 }) => {
-    const [boardToDropTask, setBoardToDropTask] = useState(0);
-
     useEffect(() => {
         getTasks();
     }, []);
 
-    const [{ isOver }, dropRef] = useDrop(() => ({
-        accept: 'task',
-        drop: (item, monitor) => {
-            const didDrop = monitor.didDrop();
-            addTaskToBoard(didDrop);
-        },
-        collect: (monitor) => ({
-            isOver: !!monitor.isOver()
-        })
-    }));
+    const handleDragEnd = (result) => {
+        const { destination, source, draggableId } = result;
 
-    const addTaskToBoard = (didDrop) => {
-        console.log(`board to drop task: ${boardToDropTask}`);
-        console.log(didDrop);
-    };
+        // if no destination, then do nothing
+        if (!destination) return;
 
-    const handleDragEnd = (e, boardId, taskId) => {
-        e.preventDefault();
-        if (boardToDropTask !== boardId) {
-            console.log('boardId: ' + boardId);
-            setBoardToDropTask(boardId);
-            console.log(isOver, boardId);
+        // checks to see if the user drops the item back to the original board
+        if (
+            destination.droppableId === source.droppableId &&
+            destination.index === source.index
+        )
+            return;
+
+        // re-order the tasks id array from the column / board
+        const start = columns[source.droppableId];
+        const finish = columns[destination.droppableId];
+
+        if (start === finish) {
+            // create a new tasks id array with same content as the last array
+            const newTaskIds = Array.from(start.taskIds);
+
+            // move the task id from it's old index to new index in the array
+            newTaskIds.splice(source.index, 1);
+            newTaskIds.splice(destination.index, 0, draggableId);
+
+            const updatedColumn = {
+                ...start,
+                taskIds: newTaskIds
+            };
+
+            console.log(updatedColumn);
+            // here we can save the data or update the state
+            saveTask(updatedColumn);
         }
+
+        // moving from one board to another
+        const startTaskIds = Array.from(start.taskIds);
+        startTaskIds.splice(source.index, 1);
+        const newStart = {
+            ...start,
+            taskIds: startTaskIds
+        };
+
+        const finishTaskIds = Array.from(finish.taskIds);
+        finishTaskIds.splice(source.index, 1);
+        const newFinish = {
+            ...finish,
+            taskIds: finishTaskIds
+        };
+
+        saveTask(newStart);
+        saveTask(newFinish);
     };
 
     return (
-        <Container>
-            <Row>
-                {/* In the future, I could make the board-card-container element into a functional component and redirect the ref to make the drag and drop work */}
-                <div className='board-card-container col-md-3' ref={dropRef}>
-                    <h2 className='board-card-title'>Backlog</h2>
-                    <div
-                        className={'board-card'}
-                        onDragOver={(e) =>
-                            handleDragEnd(e, boardCardIds.backlog)
+        <DragDropContext onDragEnd={handleDragEnd}>
+            <DashboardContainer>
+                {columnOrder &&
+                    columns &&
+                    columnOrder.map((columnId) => {
+                        const column = columns[columnId];
+                        const filteredTasks =
+                            column &&
+                            column.taskIds.map((taskId) => tasks[taskId]);
+                        if (column) {
+                            return (
+                                <Board
+                                    key={column.id}
+                                    column={column}
+                                    tasks={filteredTasks}
+                                />
+                            );
                         }
-                    >
-                        {backlog.map((task, i) => {
-                            return (
-                                <Task
-                                    boardToDropTask={boardToDropTask}
-                                    addTaskToBoard={addTaskToBoard}
-                                    key={i}
-                                    boardCardId={task.boardCardId}
-                                    content={task.content}
-                                />
-                            );
-                        })}
-                    </div>
-                </div>
-                <div className='board-card-container col-md-3' ref={dropRef}>
-                    <h2 className='board-card-title'>In Progress</h2>
-                    <div
-                        className={'board-card'}
-                        onDragOver={(e) =>
-                            handleDragEnd(e, boardCardIds.inProgress)
-                        }
-                    >
-                        {inProgress.map((task, i) => {
-                            return (
-                                <Task
-                                    boardToDropTask={boardToDropTask}
-                                    addTaskToBoard={addTaskToBoard}
-                                    key={i}
-                                    boardCardId={task.boardCardId}
-                                    content={task.content}
-                                />
-                            );
-                        })}
-                    </div>
-                </div>
-                <div className='board-card-container col-md-3' ref={dropRef}>
-                    <h2 className='board-card-title'>QA</h2>
-                    <div
-                        className={'board-card'}
-                        onDragOver={(e) =>
-                            handleDragEnd(e, boardCardIds.testing)
-                        }
-                    >
-                        {testing.map((task, i) => {
-                            return (
-                                <Task
-                                    boardToDropTask={boardToDropTask}
-                                    addTaskToBoard={addTaskToBoard}
-                                    key={i}
-                                    boardCardId={task.boardCardId}
-                                    content={task.content}
-                                />
-                            );
-                        })}
-                    </div>
-                </div>
-                <div className='board-card-container col-md-3' ref={dropRef}>
-                    <h2 className='board-card-title'>Done</h2>
-                    <div
-                        className={'board-card'}
-                        onDragOver={(e) => handleDragEnd(e, boardCardIds.done)}
-                    >
-                        {done.map((task, i) => {
-                            return (
-                                <Task
-                                    boardToDropTask={boardToDropTask}
-                                    addTaskToBoard={addTaskToBoard}
-                                    key={i}
-                                    boardCardId={task.boardCardId}
-                                    content={task.content}
-                                />
-                            );
-                        })}
-                    </div>
-                </div>
-            </Row>
-        </Container>
+                    })}
+            </DashboardContainer>
+        </DragDropContext>
     );
 };
 
 Dashboard.propTypes = {
     task: PropTypes.object.isRequired,
     getTasks: PropTypes.func.isRequired,
-    moveTask: PropTypes.func.isRequired
+    saveTask: PropTypes.func.isRequired
 };
 
 const mapStateToProps = (state) => ({
     task: state.task
 });
 
-export default connect(mapStateToProps, { getTasks, moveTask })(Dashboard);
+export default connect(mapStateToProps, { getTasks, saveTask })(Dashboard);
