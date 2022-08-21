@@ -2,11 +2,19 @@
 
 ![Kanban Board App Image](./src/assets/kanban-board-dashboard.png)
 
-## Requirement
+## Overview
 
--   Git
--   Yarn or NPM
+This is a basic web app that allows you to organize tasks and move them from and between the "Backlog", "In Progress", "QA", "Done" boards. This app uses a React frontend. I used react redux to help manage the state. I also used redux-thunk, redux-logger as a middleware for my store. I implemented styled components for styling and react-beautiful-dnd to help manage the drag and drop events.
+
+## Technologies
+
 -   React
+-   Redux
+-   Redux Thunk
+-   Redux Logger
+-   Prop-types
+-   Styled Components
+-   React Beautiful Dnd
 
 ## Usage
 
