@@ -11,8 +11,6 @@ const store = configureAppStore();
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
     <Provider store={store}>
-        {/* <DndProvider backend={HTML5Backend}> */}
         <App />
-        {/* </DndProvider> */}
     </Provider>
 );

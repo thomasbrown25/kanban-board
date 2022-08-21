@@ -23,6 +23,8 @@ $ npm install
 $ npm start
 ```
 
+Sidenote: for the install, I had to downgrade react version and use 17.0.2 because of an current dependency issue with npm package react-beautiful-dnd. You can use React 18 but will have to --force the install.
+
 Open `http://localhost:3000` and enjoy!
 
 ## Frontend
