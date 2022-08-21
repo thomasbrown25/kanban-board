@@ -6,7 +6,6 @@ import initialData from '../../task-initial-data';
 
 export const getTasks = () => async (dispatch) => {
     // write an api call to get task data from a database
-    console.log(initialData);
 
     try {
         dispatch({
@@ -21,18 +20,15 @@ export const getTasks = () => async (dispatch) => {
     }
 };
 
-export const saveTask = (updatedColumn) => async (dispatch) => {
-    // create api call to save data in db
+export const saveTask = (newTaskState) => async (dispatch) => {
+    // create api call to save data in db and will return updated data
+    console.log('running save task method');
     try {
-        const newData = {
-            ...initialData,
-            columns: {
-                [updatedColumn.id]: updatedColumn
-            }
-        };
-        console.log(newData);
+        console.log('logging newTaskState');
+        console.log(newTaskState);
+        console.log('saving newTaskState');
 
-        dispatch({ type: TASK_ACTION_TYPES.MOVE_TASK, payload: newData });
+        dispatch({ type: TASK_ACTION_TYPES.MOVE_TASK, payload: newTaskState });
     } catch (error) {
         dispatch({
             type: TASK_ACTION_TYPES.MOVE_TASK_FAILED,

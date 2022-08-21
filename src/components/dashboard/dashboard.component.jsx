@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { DragDropContext } from 'react-beautiful-dnd';
@@ -12,6 +12,7 @@ import { DashboardContainer } from './dashboard.styles';
 const Dashboard = ({
     getTasks,
     saveTask,
+    task,
     task: { tasks, columns, columnOrder }
 }) => {
     useEffect(() => {
@@ -32,48 +33,68 @@ const Dashboard = ({
             return;
 
         // re-order the tasks id array from the column / board
-        const start = columns[source.droppableId];
-        const finish = columns[destination.droppableId];
+        const startColumn = columns[source.droppableId];
+        const finishColumn = columns[destination.droppableId];
 
-        if (start === finish) {
+        // if we're only re-ordering the tasks in the same column
+        if (startColumn === finishColumn) {
             // create a new tasks id array with same content as the last array
-            const newTaskIds = Array.from(start.taskIds);
+            const newTaskIds = Array.from(startColumn.taskIds);
 
             // move the task id from it's old index to new index in the array
             newTaskIds.splice(source.index, 1);
             newTaskIds.splice(destination.index, 0, draggableId);
 
             const updatedColumn = {
-                ...start,
+                ...startColumn,
                 taskIds: newTaskIds
             };
 
-            console.log(updatedColumn);
+            const newTaskState = {
+                ...task,
+                columns: {
+                    ...task.columns,
+                    [updatedColumn.id]: updatedColumn
+                }
+            };
+
+            console.log(newTaskState);
             // here we can save the data or update the state
-            saveTask(updatedColumn);
+            saveTask(newTaskState);
+            return;
         }
 
-        // moving from one board to another
-        const startTaskIds = Array.from(start.taskIds);
+        // if we're moving item to another board
+        // remove the task that we're dragging from the tasks array in the start column
+        const startTaskIds = Array.from(startColumn.taskIds);
         startTaskIds.splice(source.index, 1);
-        const newStart = {
-            ...start,
+        const newStartColumn = {
+            ...startColumn,
             taskIds: startTaskIds
         };
 
-        const finishTaskIds = Array.from(finish.taskIds);
-        finishTaskIds.splice(source.index, 1);
-        const newFinish = {
-            ...finish,
+        // insert the draggable id / task at the destination in the finish column
+        const finishTaskIds = Array.from(finishColumn.taskIds);
+        finishTaskIds.splice(destination.index, 0, draggableId);
+        const newFinishColumn = {
+            ...finishColumn,
             taskIds: finishTaskIds
         };
 
-        saveTask(newStart);
-        saveTask(newFinish);
+        const newTaskState = {
+            ...task,
+            columns: {
+                ...task.columns,
+                [newStartColumn.id]: newStartColumn,
+                [newFinishColumn.id]: newFinishColumn
+            }
+        };
+
+        saveTask(newTaskState);
     };
 
     return (
-        <DragDropContext onDragEnd={handleDragEnd}>
+        <DragDropContext onDragEnd={(event) => handleDragEnd(event)}>
             <DashboardContainer>
                 {columnOrder &&
                     columns &&

@@ -4,7 +4,8 @@ const initialData = {
         'task-2': { id: 'task-2', content: 'This task is also in the backlog' },
         'task-3': { id: 'task-3', content: 'This task is in progress' },
         'task-4': { id: 'task-4', content: 'This task is in testing' },
-        'task-5': { id: 'task-5', content: 'This task is complete' }
+        'task-5': { id: 'task-5', content: 'This task is complete' },
+        'task-6': { id: 'task-6', content: 'This task is complete' }
     },
     columns: {
         'column-1': {
@@ -25,7 +26,7 @@ const initialData = {
         'column-4': {
             id: 'column-4',
             title: 'Done',
-            taskIds: []
+            taskIds: ['task-6']
         }
     },
     columnOrder: ['column-1', 'column-2', 'column-3', 'column-4']
