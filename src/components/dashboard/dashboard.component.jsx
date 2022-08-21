@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { DragDropContext } from 'react-beautiful-dnd';
@@ -17,7 +17,7 @@ const Dashboard = ({
 }) => {
     useEffect(() => {
         getTasks();
-    }, []);
+    }, [getTasks]);
 
     const handleDragEnd = (result) => {
         const { destination, source, draggableId } = result;
@@ -103,15 +103,13 @@ const Dashboard = ({
                         const filteredTasks =
                             column &&
                             column.taskIds.map((taskId) => tasks[taskId]);
-                        if (column) {
-                            return (
-                                <Board
-                                    key={column.id}
-                                    column={column}
-                                    tasks={filteredTasks}
-                                />
-                            );
-                        }
+                        return (
+                            <Board
+                                key={column.id}
+                                column={column}
+                                tasks={filteredTasks}
+                            />
+                        );
                     })}
             </DashboardContainer>
         </DragDropContext>
