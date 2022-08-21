@@ -1,0 +1,18 @@
+.board-card-container {
+    display: inline-block;
+    padding: 10px;
+    height: 400px;
+    /* background-color: black; */
+}
+
+.board-card-title {
+    text-align: center;
+}
+
+.board-card {
+    box-sizing: border-box;
+    border-radius: 10px;
+    background-color: black;
+    height: 80%;
+    padding-top: 1px;
+}
