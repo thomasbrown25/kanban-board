@@ -1,0 +1,16 @@
+[
+    { "id": 1, "boardCardId": 1, "content": "This task is in the backlog" },
+    {
+        "id": 2,
+        "boardCardId": 1,
+        "content": "This task is also in the backlog"
+    },
+    {
+        "id": 2,
+        "boardCardId": 1,
+        "content": "This task is in the backlog as well"
+    },
+    { "id": 3, "boardCardId": 2, "content": "This task is in progress" },
+    { "id": 4, "boardCardId": 3, "content": "This task is in QA" },
+    { "id": 5, "boardCardId": 4, "content": "This task is complete" }
+]

@@ -7,9 +7,9 @@ const Task = ({ content, boardCardId, addTaskToBoard, boardToDropTask }) => {
         item: { boardCardId },
         end: (item, monitor) => {
             const dropResult = monitor.getDropResult();
-            console.log(item, dropResult);
-            console.log(`board to drop task: ${boardToDropTask}`);
-            addTaskToBoard(item);
+            //console.log(item, dropResult);
+
+            //addTaskToBoard(item);
         },
         collect: (monitor) => ({
             isDragging: !!monitor.isDragging()

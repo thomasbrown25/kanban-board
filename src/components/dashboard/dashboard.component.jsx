@@ -1,9 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import { Container, Row } from 'react-bootstrap';
 import { useDrop } from 'react-dnd';
 
-import BoardCard from '../board-card/board-card.component';
 import Task from '../task/task.component';
+
+import { getTasks, moveTask } from '../../store/task/task.action';
 
 import './dashboard.styles.css';
 
@@ -15,90 +18,31 @@ const boardCardIds = {
     done: 4
 };
 
-// This would typically be returned from an api / database.
-// Also, we'd typically make an action call defined in a separate folder to retrieve this
-const taskData = [
-    { id: 1, boardCardId: 1, content: 'This task is in the backlog' },
-    { id: 2, boardCardId: 1, content: 'This task is also in the backlog' },
-    { id: 2, boardCardId: 1, content: 'This task is in the backlog as well' },
-    { id: 3, boardCardId: 2, content: 'This task is in progress' },
-    { id: 4, boardCardId: 3, content: 'This task is in QA' },
-    { id: 5, boardCardId: 4, content: 'This task is complete' }
-];
-
-const Dashboard = () => {
-    const [backlog, setBacklog] = useState([]);
-    const [inProgress, setInProgress] = useState([]);
-    const [testing, setTesting] = useState([]);
-    const [done, setDone] = useState([]);
-    const [mapData, setMapData] = useState(new Map());
+const Dashboard = ({
+    getTasks,
+    moveTask,
+    task: { backlog, inProgress, testing, done }
+}) => {
     const [boardToDropTask, setBoardToDropTask] = useState(0);
 
-    const fillTaskData = () => {
-        let backlogData = [];
-        let inProgressData = [];
-        let testingData = [];
-        let doneData = [];
-
-        mapData &&
-            mapData.forEach((item) => {
-                switch (item.boardCardId) {
-                    case boardCardIds.backlog:
-                        backlogData.push(item);
-                        break;
-
-                    case boardCardIds.inProgress:
-                        inProgressData.push(item);
-                        break;
-
-                    case boardCardIds.testing:
-                        testingData.push(item);
-                        break;
-
-                    case boardCardIds.done:
-                        doneData.push(item);
-                        break;
-
-                    default:
-                        break;
-                }
-            });
-
-        setBacklog(backlogData);
-        setInProgress(inProgressData);
-        setTesting(testingData);
-        setDone(doneData);
-    };
-
-    const fillMapWithData = (taskData) => {
-        const tempMap = new Map();
-        taskData.map((item, i) => {
-            tempMap.set(i, item);
-        });
-        console.log(tempMap);
-        setMapData(tempMap);
-    };
-
     useEffect(() => {
-        fillMapWithData(taskData);
-    }, [taskData]);
-
-    useEffect(() => {
-        fillTaskData();
-    }, [mapData]);
+        getTasks();
+    }, []);
 
     const [{ isOver }, dropRef] = useDrop(() => ({
         accept: 'task',
-        drop: (item) => addTaskToBoard(item),
+        drop: (item, monitor) => {
+            const didDrop = monitor.didDrop();
+            addTaskToBoard(didDrop);
+        },
         collect: (monitor) => ({
             isOver: !!monitor.isOver()
         })
     }));
 
-    const addTaskToBoard = (item) => {
-        // console.log(`board to drop task: ${boardToDropTask}`);
-        console.log(item);
-        // console.log(`adding task: ${taskId} to board: ${boardId}`);
+    const addTaskToBoard = (didDrop) => {
+        console.log(`board to drop task: ${boardToDropTask}`);
+        console.log(didDrop);
     };
 
     const handleDragEnd = (e, boardId, taskId) => {
@@ -108,9 +52,6 @@ const Dashboard = () => {
             setBoardToDropTask(boardId);
             console.log(isOver, boardId);
         }
-        // if (!isOver && boardToDropTask !== 0) {
-        //     addTaskToBoard(taskId, boardId);
-        // }
     };
 
     return (
@@ -204,4 +145,14 @@ const Dashboard = () => {
     );
 };
 
-export default Dashboard;
+Dashboard.propTypes = {
+    task: PropTypes.object.isRequired,
+    getTasks: PropTypes.func.isRequired,
+    moveTask: PropTypes.func.isRequired
+};
+
+const mapStateToProps = (state) => ({
+    task: state.task
+});
+
+export default connect(mapStateToProps, { getTasks, moveTask })(Dashboard);
