@@ -4,6 +4,7 @@ import { TaskContainer } from './task.styles';
 
 const Task = ({ id, task, index }) => {
     return (
+        // make the tasks draggable
         <Draggable draggableId={id} index={index} type='TASK'>
             {(provided) => (
                 <TaskContainer
